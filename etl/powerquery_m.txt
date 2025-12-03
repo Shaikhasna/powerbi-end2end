@@ -1,0 +1,9 @@
+let
+  Source = Csv.Document(File.Contents("C:\path\to\sales.csv"), [Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+  PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+  ChangedType = Table.TransformColumnTypes(PromotedHeaders, {{"SaleID", Int64.Type}, {"Date", type date}, {"CustomerID", Int64.Type}, {"ProductID", Int64.Type}, {"Quantity", Int64.Type}, {"SalesAmount", type number}}),
+  RemovedNulls = Table.SelectRows(ChangedType, each ([SalesAmount] <> null)),
+  AddedYear = Table.AddColumn(RemovedNulls, "Year", each Date.Year([Date]), Int64.Type),
+  AddedMonth = Table.AddColumn(AddedYear, "Month", each Date.Month([Date]), Int64.Type)
+in
+  AddedMonth
